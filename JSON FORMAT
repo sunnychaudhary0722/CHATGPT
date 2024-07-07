@@ -1,0 +1,35 @@
+{
+  "personal_information": {
+    "name": "",
+    "contact": {
+      "email": "",
+      "phone": ""
+    },
+    "location": ""
+  },
+  "professional_experience": [
+    {
+      "job_title": "",
+      "company": "",
+      "dates": {
+        "start": "",
+        "end": ""
+      },
+      "location": "",
+      "responsibilities": []
+    }
+  ],
+  "education": [
+    {
+      "degree": "",
+      "institution": "",
+      "dates": {
+        "start": "",
+        "end": ""
+      },
+      "location": ""
+    }
+  ],
+  "skills": [],
+  "certifications": []
+}

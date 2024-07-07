@@ -1,0 +1,106 @@
+import re
+import json
+
+def parse_resume(resume_text):
+    # Define regex patterns to match sections
+    patterns = {
+        'personal_information': re.compile(r'(?<=Name:)(.*?)(?=Professional Experience)', re.DOTALL),
+        'professional_experience': re.compile(r'(?<=Professional Experience)(.*?)(?=Education)', re.DOTALL),
+        'education': re.compile(r'(?<=Education)(.*?)(?=Skills)', re.DOTALL),
+        'skills': re.compile(r'(?<=Skills)(.*?)(?=Certifications)', re.DOTALL),
+        'certifications': re.compile(r'(?<=Certifications)(.*)', re.DOTALL)
+    }
+    
+    # Extract matched sections
+    extracted_sections = {key: pattern.search(resume_text).group(1).strip() for key, pattern in patterns.items()}
+
+    # Process each section into JSON format
+    json_data = {
+        'personal_information': parse_personal_info(extracted_sections['personal_information']),
+        'professional_experience': parse_experience(extracted_sections['professional_experience']),
+        'education': parse_education(extracted_sections['education']),
+        'skills': parse_skills(extracted_sections['skills']),
+        'certifications': parse_certifications(extracted_sections['certifications'])
+    }
+    
+    return json_data
+
+def parse_personal_info(text):
+    # Extract personal information
+    info = {}
+    lines = text.split('\n')
+    for line in lines:
+        if 'Email:' in line:
+            info['email'] = line.split('Email:')[-1].strip()
+        elif 'Phone:' in line:
+            info['phone'] = line.split('Phone:')[-1].strip()
+        else:
+            info['name'] = line.strip()
+    return info
+
+def parse_experience(text):
+    # Extract professional experience
+    experience = []
+    jobs = text.split('\n\n')
+    for job in jobs:
+        details = job.split('\n')
+        experience.append({
+            'job_title': details[0].strip(),
+            'company': details[1].strip(),
+            'dates': {'start': details[2].split('-')[0].strip(), 'end': details[2].split('-')[1].strip()},
+            'location': details[3].strip(),
+            'responsibilities': [resp.strip() for resp in details[4:]]
+        })
+    return experience
+
+def parse_education(text):
+    # Extract education
+    education = []
+    degrees = text.split('\n\n')
+    for degree in degrees:
+        details = degree.split('\n')
+        education.append({
+            'degree': details[0].strip(),
+            'institution': details[1].strip(),
+            'dates': {'start': details[2].split('-')[0].strip(), 'end': details[2].split('-')[1].strip()},
+            'location': details[3].strip()
+        })
+    return education
+
+def parse_skills(text):
+    # Extract skills
+    return [skill.strip() for skill in text.split(',')]
+
+def parse_certifications(text):
+    # Extract certifications
+    return [cert.strip() for cert in text.split(',')]
+
+# Example usage
+resume_text = """
+Name: John Doe
+Email: john.doe@example.com
+Phone: (123) 456-7890
+
+Professional Experience
+Software Engineer
+Tech Company
+Jan 2020 - Present
+San Francisco, CA
+Developed web applications using Python and JavaScript
+Led a team of 5 engineers
+
+Education
+Bachelor of Science in Computer Science
+University of Example
+Sep 2015 - May 2019
+Example City, State
+
+Skills
+Python, JavaScript, SQL, HTML, CSS
+
+Certifications
+Certified Python Developer, AWS Certified Solutions Architect
+"""
+
+parsed_json = parse_resume(resume_text)
+print(json.dumps(parsed_json, indent=4))
